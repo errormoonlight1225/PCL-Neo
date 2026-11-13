@@ -9,17 +9,18 @@ namespace PCL.Core.Test.UI.Navigation;
 [TestClass]
 public sealed class TopBarNavigationLayoutTests
 {
-    private static readonly TopBarNavigationItem[] SevenTabs =
+    // 启动、下载、扩展（基岩版 + Lunar）、工具、设置、插件
+    private static readonly TopBarNavigationItem[] SixTabs =
     [
-        new(0, 80), new(1, 90), new(2, 100), new(13, 85),
+        new(0, 80), new(1, 90), new(2, 100),
         new(4, 90), new(3, 90), new(14, 90)
     ];
 
     [TestMethod]
     public void AllTabsRemainVisibleWhenMeasuredWidthFits()
     {
-        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SevenTabs,
-            new HashSet<int> { 3, 14 }, availableWidth: 640, overflowButtonWidth: 32);
+        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SixTabs,
+            new HashSet<int> { 3, 14 }, availableWidth: 560, overflowButtonWidth: 32);
 
         Assert.AreEqual(0, collapsed.Count);
     }
@@ -27,32 +28,43 @@ public sealed class TopBarNavigationLayoutTests
     [TestMethod]
     public void PreferredTabsCollapseOnlyWhenTheCurrentWidthRequiresIt()
     {
-        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SevenTabs,
-            new HashSet<int> { 3, 14 }, availableWidth: 540, overflowButtonWidth: 32);
+        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SixTabs,
+            new HashSet<int> { 3, 14 }, availableWidth: 460, overflowButtonWidth: 32);
 
         Assert.IsTrue(collapsed.Count > 0);
         CollectionAssert.AreEquivalent(new[] { 3, 14 }, collapsed.ToArray());
         Assert.IsFalse(collapsed.Contains(TopBarNavigationLayout.LaunchTabId));
-        var visibleWidth = SevenTabs.Where(tab => !collapsed.Contains(tab.Id)).Sum(tab => tab.Width) + 32;
-        Assert.IsTrue(visibleWidth <= 540);
+        var visibleWidth = SixTabs.Where(tab => !collapsed.Contains(tab.Id)).Sum(tab => tab.Width) + 32;
+        Assert.IsTrue(visibleWidth <= 460);
     }
 
     [TestMethod]
     public void FiveOrFewerTabsAreNeverAutomaticallyCollapsed()
     {
-        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SevenTabs.Take(5).ToArray(),
+        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SixTabs.Take(5).ToArray(),
             new HashSet<int> { 1, 2, 3 }, availableWidth: 1, overflowButtonWidth: 32);
 
         Assert.AreEqual(0, collapsed.Count);
     }
 
     [TestMethod]
-    public void NarrowWidthCollapsesOptionalTabsButKeepsLaunch()
+    public void NarrowWidthCollapsesOptionalTabsButKeepsLaunchAndExtensions()
     {
-        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SevenTabs,
+        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SixTabs,
             new HashSet<int>(), availableWidth: 120, overflowButtonWidth: 32);
 
-        CollectionAssert.AreEquivalent(new[] { 1, 2, 13, 4, 3, 14 }, collapsed.ToArray());
+        CollectionAssert.AreEquivalent(new[] { 1, 4, 3, 14 }, collapsed.ToArray());
+    }
+
+    [TestMethod]
+    public void ExtensionsTabIgnoresCollapsePreference()
+    {
+        var collapsed = TopBarNavigationLayout.SelectCollapsedTabs(SixTabs,
+            new HashSet<int> { TopBarNavigationLayout.ExtensionsTabId }, availableWidth: 460, overflowButtonWidth: 32);
+
+        Assert.IsTrue(collapsed.Count > 0);
+        Assert.IsFalse(collapsed.Contains(TopBarNavigationLayout.ExtensionsTabId));
+        Assert.IsFalse(collapsed.Contains(TopBarNavigationLayout.LaunchTabId));
     }
 
 }

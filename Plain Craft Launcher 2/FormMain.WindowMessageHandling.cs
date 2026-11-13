@@ -323,8 +323,8 @@ public partial class FormMain
 
         var buttons = new (MyRadioButton Button, int Id)[]
         {
-            (BtnTitleSelect0, 0), (BtnTitleSelect1, 1), (BtnTitleSelect2, 2),
-            (BtnTitleSelectLunar, 13), (BtnTitleSelect4, 4),
+            (BtnTitleSelect0, 0), (BtnTitleSelect1, 1), (BtnTitleSelectExtensions, 2),
+            (BtnTitleSelect4, 4),
             (BtnTitleSelect3, 3), (BtnTitleSelectPlugins, 14)
         };
         var preferredCollapsedIds = ParseCollapsedNavigationIds(Config.Preference.TopBarCollapsedTabs);
@@ -395,7 +395,8 @@ public partial class FormMain
 
     private static HashSet<int> ParseCollapsedNavigationIds(string? value)
     {
-        var validIds = new HashSet<int> { 1, 2, 3, 4, 13, 14 };
+        // 2（扩展）与 0（启动）一样固定在顶栏，不接受折叠偏好
+        var validIds = new HashSet<int> { 1, 3, 4, 14 };
         return (value ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(text => int.TryParse(text, out var id) ? id : -1)
             .Where(validIds.Contains)
@@ -444,10 +445,9 @@ public partial class FormMain
         return id switch
         {
             1 => hidden.PageDownload,
-            2 => hidden.PageBedrock,
+            // 2 是「扩展」（基岩版 + Lunar）：权限很高，不允许隐藏，旧的 UiHiddenPageBedrock / UiHiddenPageLunar 不再生效
             3 => hidden.PageSetup,
             4 => hidden.PageTools,
-            13 => hidden.PageLunar,
             14 => hidden.PagePlugins,
             _ => false
         };

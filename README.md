@@ -1,3 +1,4 @@
+  本readme.md来自PCL-Lite,做了些许改动
 **简体中文** | [English](README-EN.md) | [繁體中文](README-ZH_TW.md)
 
 
@@ -12,7 +13,7 @@
 > **非 MINECRAFT 官方产品。** 未经 MOJANG 或 MICROSOFT 批准，也不与 MOJANG 或 MICROSOFT 关联。
 > NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
 
-PCL Neo 是一个独立的 Minecraft 启动器项目，在开源代码Pcl-Lite基础上加入了大量改动。
+PCL Neo 是一个独立的 Minecraft 启动器项目，在开源代码Pcl-Lite基础上加入了些许改动。
 
 本项目以 **MIT 许可证** 发布，并附带传染性（copyleft）附加条款，详见[许可证](#-许可证)。
 

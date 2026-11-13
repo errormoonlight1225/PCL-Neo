@@ -70,6 +70,9 @@ public partial class PageBedrockLeft
         ModBedrockRuntime.Launch();
     }
 
+    private void BtnSwitchLunar_Click(object sender, MouseButtonEventArgs e) =>
+        ModExtensions.SwitchTo(FormMain.PageType.Lunar);
+
     #region 页面切换
 
     /// <summary>

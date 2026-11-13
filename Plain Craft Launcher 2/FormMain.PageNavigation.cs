@@ -190,11 +190,9 @@ public partial class FormMain
             PageChangeExit();
             isChangingPage = true; // 防止下面的勾选直接触发了 PageChangeActual
             // 必须按 Tag 找标题栏按钮，不能用 Children[(int)stack.page]：
-            // Lunar 是后加进来的标签，Tag 是 13，插在 Children 的第 4 位，
+            // 顶栏会按折叠状态重排，而且基岩版与 Lunar 共用「扩展」按钮，
             // 索引和枚举值早就不一一对应了，用索引会点亮错误的标签（或者直接越界）。
-            var titleButton = PanTitleSelect.Children.OfType<MyRadioButton>()
-                .FirstOrDefault(x => x.Tag is not null && ModBase.Val(x.Tag) == (double)stack.page);
-            titleButton?.SetChecked(true, true, string.IsNullOrEmpty(PageNameGet(pageCurrent)));
+            FindTitleButton(stack.page)?.SetChecked(true, true, string.IsNullOrEmpty(PageNameGet(pageCurrent)));
             isChangingPage = false;
             switch (stack.page)
             {
@@ -311,9 +309,43 @@ public partial class FormMain
     {
         if (isChangingPage)
             return;
-        var pageType = (PageType)int.Parse(sender.Tag.ToString());
+        var pageType = sender == BtnTitleSelectExtensions
+            ? ModExtensions.LastPage
+            : (PageType)int.Parse(sender.Tag.ToString());
         PageChangeActual(pageType, PageSubType.Default);
+    }
+
+
+    /// <summary>
+    ///     找到某个顶级页面对应的标题栏按钮。基岩版和 Lunar 共用「扩展」按钮。
+    /// </summary>
+    private MyRadioButton? FindTitleButton(PageType page)
+    {
+        if (ModExtensions.IsExtensionPage(page)) return BtnTitleSelectExtensions;
+        return PanTitleSelect.Children.OfType<MyRadioButton>()
+            .FirstOrDefault(x => x.Tag is not null && ModBase.Val(x.Tag) == (double)page);
+    }
+
+
+    /// <summary>
+    ///     进入扩展前的高权限确认。用户取消时把标题栏高亮恢复到当前页面，返回 false。
+    /// </summary>
+    private bool ConfirmExtensionEntry(PageStackData stack)
+    {
+        if (!ModExtensions.IsExtensionPage(stack.page)) return true;
+        if (!ModExtensions.IsExtensionPage(pageCurrent.page) && !ModExtensions.ConfirmPrivilegeNotice())
+        {
+            if (string.IsNullOrEmpty(PageNameGet(pageCurrent)))
+            {
+                isChangingPage = true;
+                try { FindTitleButton(pageCurrent.page)?.SetChecked(true, true, false); }
+                finally { isChangingPage = false; }
+            }
+            return false;
         }
+        ModExtensions.LastPage = stack.page;
+        return true;
+    }
 
 
     private void BtnTitleInner_Click(object sender, EventArgs e)
@@ -341,6 +373,8 @@ public partial class FormMain
     private void PageChangeActual(PageStackData stack, PageSubType subType)
     {
         if (pageCurrent == stack && (PageCurrentSub == subType || (int)subType == -1))
+            return;
+        if (!ConfirmExtensionEntry(stack))
             return;
         ModAnimation.AniControlEnabled += 1;
         try

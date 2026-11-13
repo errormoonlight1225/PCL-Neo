@@ -339,11 +339,13 @@
                         <local:MyCheckBox x:Name="CheckTopBarCollapseDownload" Text="{DynamicResource Main.Tab.Download}"
                                           Tag="1" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change" />
                         <local:MyCheckBox x:Name="CheckTopBarCollapseBedrock" Text="{DynamicResource Main.Tab.Bedrock}"
-                                          Tag="2" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change" />
+                                          Tag="2" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change"
+                                          Visibility="Collapsed" /><!--  「扩展」固定在顶栏，不参与折叠  -->
                         <local:MyCheckBox x:Name="CheckTopBarCollapsePlugins" Text="{DynamicResource Main.Tab.Plugins}"
                                           Tag="14" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change" />
                         <local:MyCheckBox x:Name="CheckTopBarCollapseLunar" Text="Lunar"
-                                          Tag="13" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change" />
+                                          Tag="13" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change"
+                                          Visibility="Collapsed" />
                         <local:MyCheckBox x:Name="CheckTopBarCollapseSettings" Text="{DynamicResource Main.Tab.Settings}"
                                           Tag="3" Height="24" Margin="0,0,12,6" Change="TopBarCollapsedTab_Change" />
                         <local:MyCheckBox x:Name="CheckTopBarCollapseTools" Text="{DynamicResource Main.Tab.Tools}"
@@ -618,9 +620,11 @@
                                           x:Name="CheckHiddenPageTools" Tag="UiHiddenPageTools" Change="CheckBoxChange" />
                         <!--  基岩版与 Lunar：与 Java 一样先写死文案，等协议稳定再补语言键  -->
                         <local:MyCheckBox Height="22" VerticalAlignment="Center" Grid.Row="1" Grid.Column="5" Text="基岩版"
-                                          x:Name="CheckHiddenPageBedrock" Tag="UiHiddenPageBedrock" Change="CheckBoxChange" />
+                                          x:Name="CheckHiddenPageBedrock" Tag="UiHiddenPageBedrock" Change="CheckBoxChange"
+                                          Visibility="Collapsed" /><!--  基岩版与 Lunar 已并入「扩展」，权限很高，不允许隐藏  -->
                         <local:MyCheckBox Height="22" VerticalAlignment="Center" Grid.Row="1" Grid.Column="6" Text="Lunar"
-                                          x:Name="CheckHiddenPageLunar" Tag="UiHiddenPageLunar" Change="CheckBoxChange" />
+                                          x:Name="CheckHiddenPageLunar" Tag="UiHiddenPageLunar" Change="CheckBoxChange"
+                                          Visibility="Collapsed" />
                         <local:MyCheckBox Height="30" VerticalAlignment="Center" Grid.Row="1" Grid.Column="7"
                                           Text="{DynamicResource Main.Tab.Plugins}" x:Name="CheckHiddenPagePlugins"
                                           Tag="UiHiddenPagePlugins" Change="CheckBoxChange" />

@@ -254,6 +254,12 @@ public static partial class Config
         /// <summary>标题栏空间不足时优先折叠的主导航页码，以逗号分隔。</summary>
         [ConfigItem<string>("UiTopBarCollapsedTabs", "3,14", ConfigSource.Local)] public partial string TopBarCollapsedTabs { get; set; }
 
+        /// <summary>用户已确认「扩展」（基岩版 + Lunar Client）的高权限提示。</summary>
+        [ConfigItem<bool>("UiExtensionsPrivilegeAccepted", false, ConfigSource.Local)] public partial bool ExtensionsPrivilegeAccepted { get; set; }
+
+        /// <summary>「扩展」按钮上次打开的页面（PageType 值：2 基岩版，13 Lunar）。</summary>
+        [ConfigItem<int>("UiExtensionsLastPage", 2, ConfigSource.Local)] public partial int ExtensionsLastPage { get; set; }
+
         /// <summary>
         /// 全局字体。
         /// </summary>

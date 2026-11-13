@@ -243,7 +243,7 @@ public partial class PageSetupUI
         var collapsedIds = (Config.Preference.TopBarCollapsedTabs ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(value => int.TryParse(value, out var currentId) ? currentId : -1)
-            .Where(currentId => currentId is 1 or 2 or 3 or 4 or 13 or 14)
+            .Where(currentId => currentId is 1 or 3 or 4 or 14) // 2（扩展）固定在顶栏，13（Lunar）已并入扩展
             .ToHashSet();
         if (checkBox.Checked == true)
             collapsedIds.Add(id);

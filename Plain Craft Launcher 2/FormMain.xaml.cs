@@ -188,6 +188,7 @@ public partial class FormMain
             {
                 RenderTransform = null;
                 isWindowLoadFinished = true;
+                ModExtensions.OpenFromStartupArguments();
                 ModBase.Log(
                     $"[System] DPI：{ModBase.dpi}，系统版本：{Environment.OSVersion.VersionString}，PCL 位置：{Basics.ExecutablePath}");
             }, after: true)

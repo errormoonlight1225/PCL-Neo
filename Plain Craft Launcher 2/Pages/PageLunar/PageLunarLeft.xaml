@@ -23,6 +23,22 @@
                               VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical" x:Name="PanItem" Margin="0,12,0,0">
 
+                <!--  扩展：基岩版 / Lunar 切换。两个左栏各放一份，当前这一侧高亮、不响应点击  -->
+                <TextBlock Text="{DynamicResource Extensions.Left.Category}"
+                           Margin="13,5,5,3"
+                           Opacity="0.6" FontSize="12" />
+                <Grid Margin="13,2,13,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <local:MyButton x:Name="BtnSwitchBedrock" Grid.Column="0" Height="30"
+                                    Text="{DynamicResource Main.Tab.Bedrock}" Click="BtnSwitchBedrock_Click" />
+                    <local:MyButton x:Name="BtnSwitchLunar" Grid.Column="2" Height="30"
+                                    Text="Lunar" ColorType="Highlight" />
+                </Grid>
+
                 <TextBlock Text="LUNAR CLIENT"
                            Margin="13,5,5,3"
                            Opacity="0.6" FontSize="12" />

@@ -508,6 +508,9 @@ public static partial class ModLunar
     {
         if (IsBusy || IsRunning) return;
 
+        // 扩展要求启动器以管理员身份运行；未提权时会询问是否重启，这次启动取消
+        if (!ModExtensions.EnsureElevatedForLaunch()) return;
+
         // 游戏目录必须在 UI 线程取：PathIndie 首次访问会触发实例加载
         var gameDirectory = ResolveGameDirectory();
 

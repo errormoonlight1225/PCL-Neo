@@ -12,6 +12,12 @@ public static class TopBarNavigationLayout
 {
     public const int LaunchTabId = 0;
 
+    /// <summary>「扩展」（基岩版 + Lunar Client）。和启动页一样始终留在顶栏，不参与折叠。</summary>
+    public const int ExtensionsTabId = 2;
+
+    /// <summary>Tabs that always stay in the top bar regardless of width or user preference.</summary>
+    public static bool IsPinned(int id) => id is LaunchTabId or ExtensionsTabId;
+
     public static IReadOnlySet<int> SelectCollapsedTabs(
         IReadOnlyList<TopBarNavigationItem> tabs,
         IReadOnlySet<int> preferredCollapsedIds,
@@ -45,9 +51,9 @@ public static class TopBarNavigationLayout
             return new HashSet<int>();
 
         var candidates = tabs
-            .Where(tab => tab.Id != LaunchTabId && preferredCollapsedIds.Contains(tab.Id))
+            .Where(tab => !IsPinned(tab.Id) && preferredCollapsedIds.Contains(tab.Id))
             .Reverse()
-            .Concat(tabs.Where(tab => tab.Id != LaunchTabId && !preferredCollapsedIds.Contains(tab.Id)).Reverse());
+            .Concat(tabs.Where(tab => !IsPinned(tab.Id) && !preferredCollapsedIds.Contains(tab.Id)).Reverse());
         var collapsed = new HashSet<int>();
         foreach (var tab in candidates)
         {
