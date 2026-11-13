@@ -11,7 +11,6 @@ public sealed class PagePluginsMarket : MyPageRight
 {
     private readonly TextBlock _status;
     private readonly StackPanel _content;
-    private bool _installationInProgress;
 
     public PagePluginsMarket()
     {
@@ -37,7 +36,7 @@ public sealed class PagePluginsMarket : MyPageRight
 
     public async Task RefreshAsync()
     {
-        if (_installationInProgress) return;
+        if (PluginPageSupport.IsInstallationInProgress) return;
         _content.Children.Clear();
         var manager = PluginManagerService.Manager;
         if (manager is null)
@@ -130,35 +129,15 @@ public sealed class PagePluginsMarket : MyPageRight
 
     private async Task InstallLocalAsync()
     {
-        if (_installationInProgress) return;
+        if (PluginPageSupport.IsInstallationInProgress) return;
         var dialog = new OpenFileDialog
         {
             Filter = $"PCL plugin package (*{PCL.Plugin.SDK.PluginPackage.Extension})|*{PCL.Plugin.SDK.PluginPackage.Extension}",
             CheckFileExists = true,
-            Multiselect = false
+            Multiselect = true
         };
         if (dialog.ShowDialog() != true) return;
-        var manager = PluginManagerService.Manager;
-        if (manager is null) { PluginPageSupport.ShowPluginNotice(Lang.Text("Plugin.Common.NoManager"), PCL.Plugin.SDK.PluginNotificationKind.Warning); return; }
-        _installationInProgress = true;
-        _status.Text = Lang.Text("Plugin.Install.Working");
-        try
-        {
-            var check = await Task.Run(() => manager.InstallAsync(dialog.FileName,
-                PluginPageSupport.ConfirmInstallationAsync));
-            var note = check.IsSigned ? Lang.Text("Plugin.Install.SignedNote") + " " : "";
-            PluginPageSupport.PromptRestartForPluginChanges(note + Lang.Text("Plugin.Install.Done"));
-        }
-        catch (OperationCanceledException) { }
-        catch (Exception ex)
-        {
-            PluginPageSupport.ShowPluginNotice(Lang.Text("Plugin.Install.Failed", ex.Message), PCL.Plugin.SDK.PluginNotificationKind.Error);
-        }
-        finally
-        {
-            _installationInProgress = false;
-            _status.Text = "";
-        }
+        await PluginPageSupport.InstallLocalPackagesAsync(dialog.FileNames, status => _status.Text = status);
     }
 
     private MyButton CreateInstallButton(PluginMarketEntry entry, string label)
@@ -178,10 +157,13 @@ public sealed class PagePluginsMarket : MyPageRight
 
     private async Task InstallMarketAsync(PluginMarketEntry entry, MyButton button)
     {
-        if (_installationInProgress) return;
         var manager = PluginManagerService.Manager;
         if (manager is null) { PluginPageSupport.ShowPluginNotice(Lang.Text("Plugin.Common.NoManager"), PCL.Plugin.SDK.PluginNotificationKind.Warning); return; }
-        _installationInProgress = true;
+        if (!PluginPageSupport.TryBeginInstallation())
+        {
+            PluginPageSupport.ShowPluginNotice(Lang.Text("Plugin.Install.Busy"), PCL.Plugin.SDK.PluginNotificationKind.Warning);
+            return;
+        }
         button.IsEnabled = false;
         _status.Text = Lang.Text("Plugin.Install.Working");
         try
@@ -200,7 +182,7 @@ public sealed class PagePluginsMarket : MyPageRight
         }
         finally
         {
-            _installationInProgress = false;
+            PluginPageSupport.EndInstallation();
             _status.Text = "";
         }
     }

@@ -222,6 +222,71 @@ internal static class PluginPageSupport
         ModBase.RunInUi(() => HintService.Hint(message, hint, onClick: onClick));
     }
 
+    // PluginRuntimeManager does not serialize installs, so every UI entry point (market buttons,
+    // the local-file button and window drag-and-drop) shares this single guard.
+    private static int _installationInProgress;
+
+    public static bool IsInstallationInProgress => Volatile.Read(ref _installationInProgress) != 0;
+
+    public static bool TryBeginInstallation() => Interlocked.CompareExchange(ref _installationInProgress, 1, 0) == 0;
+
+    public static void EndInstallation() => Volatile.Write(ref _installationInProgress, 0);
+
+    public static bool IsPluginPackagePath(string path) =>
+        path.EndsWith(PluginPackage.Extension, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Installs local <c>.pclplugin</c> packages one after another through the normal verification and
+    /// confirmation flow, then offers a single restart. Must be called on the UI thread.
+    /// </summary>
+    public static async Task InstallLocalPackagesAsync(IReadOnlyList<string> packagePaths, Action<string>? setStatus = null)
+    {
+        if (packagePaths.Count == 0) return;
+        var manager = PluginManagerService.Manager;
+        if (manager is null)
+        {
+            ShowPluginNotice(Lang.Text("Plugin.Common.NoManager"), PluginNotificationKind.Warning);
+            return;
+        }
+        if (!TryBeginInstallation())
+        {
+            ShowPluginNotice(Lang.Text("Plugin.Install.Busy"), PluginNotificationKind.Warning);
+            return;
+        }
+
+        var installed = 0;
+        var allSigned = true;
+        setStatus?.Invoke(Lang.Text("Plugin.Install.Working"));
+        try
+        {
+            foreach (var path in packagePaths)
+            {
+                try
+                {
+                    var check = await Task.Run(() => manager.InstallAsync(path, ConfirmInstallationAsync));
+                    installed++;
+                    allSigned &= check.IsSigned;
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception ex)
+                {
+                    LogWrapper.Error(ex, "Plugin", $"安装本地插件包失败：{path}");
+                    var detail = packagePaths.Count > 1 ? $"{Path.GetFileName(path)}: {ex.Message}" : ex.Message;
+                    ShowPluginNotice(Lang.Text("Plugin.Install.Failed", detail), PluginNotificationKind.Error);
+                }
+            }
+        }
+        finally
+        {
+            EndInstallation();
+            setStatus?.Invoke("");
+        }
+
+        if (installed == 0) return;
+        var done = installed == 1 ? Lang.Text("Plugin.Install.Done") : Lang.Text("Plugin.Install.DoneMultiple", installed);
+        PromptRestartForPluginChanges((allSigned ? Lang.Text("Plugin.Install.SignedNote") + " " : "") + done);
+    }
+
     public static void PromptRestartForPluginChanges(string message)
     {
         if (ModMain.MyMsgBox(message, Lang.Text("Plugin.Restart.Title"), Lang.Text("Plugin.Restart.Now"),

@@ -3089,6 +3089,8 @@ This corroborates the current asset against the Release record; it does not veri
     <sys:String x:Key="Plugin.Install.SignedNote">Signature verified: this confirms package integrity, not author identity or plugin safety.</sys:String>
     <sys:String x:Key="Plugin.Install.MixinWarning">This plugin includes {0} compiled Mixin patch(es) that modify launcher methods before the main window is created. It runs with the launcher's user permissions; signatures do not sandbox it or verify author identity.</sys:String>
     <sys:String x:Key="Plugin.Install.Done">Plugin installed. Restart the launcher to apply it.</sys:String>
+    <sys:String x:Key="Plugin.Install.DoneMultiple">{0} plugins installed. Restart the launcher to apply them.</sys:String>
+    <sys:String x:Key="Plugin.Install.Busy">Another plugin installation is in progress. Please wait for it to finish.</sys:String>
     <sys:String x:Key="Plugin.Install.Working">Verifying and installing plugin…</sys:String>
     <sys:String x:Key="Plugin.Install.Failed">Plugin installation failed: {0}</sys:String>
     <sys:String x:Key="Plugin.Installed.Title">Installed plugins</sys:String>

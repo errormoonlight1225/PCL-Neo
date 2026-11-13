@@ -3089,6 +3089,8 @@ Release 发布时间：{2}
     <sys:String x:Key="Plugin.Install.SignedNote">签名验证通过：只证明包内容与签名一致，不证明作者身份或插件安全。</sys:String>
     <sys:String x:Key="Plugin.Install.MixinWarning">此插件包含 {0} 个编译 Mixin，会在主窗口创建前修改启动器方法。插件与启动器具有相同用户权限；签名不提供沙箱隔离，也不验证作者身份。</sys:String>
     <sys:String x:Key="Plugin.Install.Done">插件已安装；重启启动器后生效。</sys:String>
+    <sys:String x:Key="Plugin.Install.DoneMultiple">插件已安装 {0} 个；重启启动器后生效。</sys:String>
+    <sys:String x:Key="Plugin.Install.Busy">已有插件正在安装，请等待其完成后再试。</sys:String>
     <sys:String x:Key="Plugin.Install.Working">正在校验并安装插件…</sys:String>
     <sys:String x:Key="Plugin.Install.Failed">插件安装失败：{0}</sys:String>
     <sys:String x:Key="Plugin.Installed.Title">已安装的插件</sys:String>
