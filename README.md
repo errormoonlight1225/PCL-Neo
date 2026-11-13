@@ -9,40 +9,27 @@
 前言：pcl和它的护卫队天天说动了蛋糕，顺手扣帽子，我想知道pcl这个帽子工厂和烘焙店是有仇吗 怎么帽子工厂天天动蛋糕？
 [神秘文章来自cubk](https://github.com/askbbtsk/pcl-lite/blob/main/readmedlc.md)
 
-[![Stars](https://img.shields.io/github/stars/askbbtsk/pcl-lite?style=for-the-badge&logo=github&labelColor=444444&color=eac54f)](https://github.com/askbbtsk/pcl-lite/stargazers)
-[![Release](https://img.shields.io/github/v/release/askbbtsk/pcl-lite?include_prereleases&label=release&logo=github&style=for-the-badge)](https://github.com/askbbtsk/pcl-lite/releases)
-[![Downloads](https://img.shields.io/github/downloads/askbbtsk/pcl-lite/total?style=for-the-badge&logo=github&labelColor=444444&color=1F883D)](https://github.com/askbbtsk/pcl-lite/releases)
 
-[源仓库](https://github.com/askbbtsk/pcl-lite) |
-[下载](https://github.com/askbbtsk/pcl-lite/releases) |
-[文档](docs/) |
-[许可证](#-许可证) |
-[提交问题](https://github.com/askbbtsk/pcl-lite/issues/new/choose) | [Issue 指南](docs/ISSUES.md)
+
 
 </div>
 
 > **非 MINECRAFT 官方产品。** 未经 MOJANG 或 MICROSOFT 批准，也不与 MOJANG 或 MICROSOFT 关联。
 > NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
 
-PCL Lite 是一个独立的 Minecraft 启动器项目，在开源代码基础上加入了大量改动与修复。
+PCL Neo 是一个独立的 Minecraft 启动器项目，在开源代码Pcl-Lite基础上加入了大量改动。
 
 本项目以 **MIT 许可证** 发布，并附带传染性（copyleft）附加条款，详见[许可证](#-许可证)。
 
-**中国大陆用户请勿使用。**
 
 ## 📦 下载
 
-前往 [Releases](https://github.com/askbbtsk/pcl-lite/releases) 下载最新版本。
+前往 [Releases](https://github.com/errormoonlight1225/PCL-Neo/releases) 下载最新版本。
 
-| 架构 | 文件 | 说明 |
-|---|---|---|
-| x64 | `PCL-Lite_[version]-[tag]_x64.exe` | 单文件、免解压 |
-tag包括pre、snapshot、nightly和hotfix（热修复，如 `1.6.0-hotfix-1`）
 
 
 - 需要已安装 [.NET 10 桌面运行时](https://dotnet.microsoft.com/download/dotnet/10.0)
-- 启动器内置自动更新，更新源指向本仓库的 Releases
-- 预发布版本（如 `0.1.0-beta`）会被更新通道视为 beta 通道
+
 
 ## 💻 支持平台
 
@@ -82,15 +69,6 @@ PCL Lite 始终建议使用最新版本的操作系统以获得最佳体验。
 
 ## 🔒 许可证
 
-本项目以 **[MIT 许可证](LICENSE)** 发布，并附带下列**传染性（copyleft）附加条款**。完整条款以 [LICENSE](LICENSE) 文件为准。
-
-- **传染性**：任何修改版、衍生版或再分发版，必须同样以本协议（MIT + 附加条款）分发，不得改用其他许可证
-- **必须署名**：必须完整保留本项目的版权声明与作者署名，不得删除或替换
-- **二次修改须标注 PCL Lite**：修改后分发时，必须在名称或说明中明确标注本项目为 **PCL Lite**
-- **与 Mojang / Microsoft 无关**：本项目与 Mojang Studios、Microsoft 及其关联公司没有任何关系，未获其批准、授权或背书
-- **地域限制**：中国大陆用户请勿使用
-- **协议可变**：本协议可能随时更新，且不提前通知；更新只对之后获取的版本生效，**已经 fork 或已经分发的版本不受影响**
-
 **第三方移植部分另有许可证**：基岩版（下载 + 安装 + 启动）移植自
 [PCL-Symbio-Edition](https://github.com/Hydrogen-Peroxide/PCL-Symbio-Edition)，该部分仍受
 **Apache-2.0** 约束（依据其第 4 条），全文见 [`LICENSE-APACHE`](LICENSE-APACHE)。
@@ -105,8 +83,7 @@ PCL Lite 始终建议使用最新版本的操作系统以获得最佳体验。
 
 参考文献:https://zhuanlan.zhihu.com/p/347828430
 
-感谢这个人
-后记:龙猫你个傻逼能不能不要用主题圈钱啊
+
 
 ## Star History
 

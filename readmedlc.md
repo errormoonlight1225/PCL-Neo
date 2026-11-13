@@ -1,3 +1,7 @@
+      本文件来自https://github.com/askbbtsk/pcl-lite
+
+
+
 <img width="583" height="105" alt="image" src="https://github.com/user-attachments/assets/65fcbd64-cee5-4798-93fe-ab279d2ebeb6" />
 
 很多人说PCL是一个共产主义软件，虽然给一个软件定义意识形态非常他妈的愚蠢，但是如果非要给他定个性的话，笔者认为PCL其实是一个金日成金正日主义软件。
