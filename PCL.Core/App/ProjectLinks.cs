@@ -110,6 +110,9 @@ public static class ProjectLinks
     /// <summary>Static plugin marketplace index hosted alongside the update service manifests.</summary>
     public static string PluginCatalog => ManifestRaw(ServiceOwner, ServiceRepo, "plugins/index.json");
 
+    /// <summary>Official extension software source (基岩版、Lunar 等官方扩展), hosted next to the plugin index.</summary>
+    public static string ExtensionCatalog => ManifestRaw(ServiceOwner, ServiceRepo, "extensions/index.json");
+
     /// <summary>
     /// 更新清单的第三条通道：GitHub Contents API。
     /// <para>

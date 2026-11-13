@@ -49,14 +49,17 @@ internal static class ModExtensions
     public static bool IsElevated => _isElevated.Value;
 
     public static bool IsExtensionPage(FormMain.PageType page) =>
-        page is FormMain.PageType.Bedrock or FormMain.PageType.Lunar;
+        page is FormMain.PageType.Extensions or FormMain.PageType.Bedrock or FormMain.PageType.Lunar;
 
-    /// <summary>「扩展」按钮要打开的页面：上次停留的扩展，默认基岩版。</summary>
+    /// <summary>「扩展」按钮要打开的页面：上次停留的页面，默认扩展商店。</summary>
     public static FormMain.PageType LastPage
     {
-        get => Config.Preference.ExtensionsLastPage == (int)FormMain.PageType.Lunar
-            ? FormMain.PageType.Lunar
-            : FormMain.PageType.Bedrock;
+        get => Config.Preference.ExtensionsLastPage switch
+        {
+            (int)FormMain.PageType.Lunar => FormMain.PageType.Lunar,
+            (int)FormMain.PageType.Bedrock => FormMain.PageType.Bedrock,
+            _ => FormMain.PageType.Extensions
+        };
         set
         {
             if (IsExtensionPage(value) && Config.Preference.ExtensionsLastPage != (int)value)
@@ -122,6 +125,19 @@ internal static class ModExtensions
         if (!IsExtensionPage(page) || ModMain.frmMain.pageCurrent.page == page) return;
         ModMain.frmMain.PageChange(page);
     }
+
+    /// <summary>扩展通过 SDK 请求打开自己的某个页面。</summary>
+    public static void NavigateToSection(string extensionId, string sectionId, string? pageId) =>
+        ModBase.RunInUi(() =>
+        {
+            ModMain.frmExtensionsLeft ??= new PageExtensionsLeft();
+            ModMain.frmExtensionsLeft.Select(extensionId + "/" + sectionId, pageId);
+            if (ModMain.frmMain.pageCurrent.page != FormMain.PageType.Extensions)
+                ModMain.frmMain.PageChange(FormMain.PageType.Extensions);
+        });
+
+    /// <summary>基岩版 / Lunar 左栏顶部的「全部扩展」。</summary>
+    public static void OpenHub() => ModMain.frmMain.PageChange(FormMain.PageType.Extensions);
 
     /// <summary>窗口加载完成后调用：以管理员身份重启而来时直接打开「扩展」。</summary>
     public static void OpenFromStartupArguments()

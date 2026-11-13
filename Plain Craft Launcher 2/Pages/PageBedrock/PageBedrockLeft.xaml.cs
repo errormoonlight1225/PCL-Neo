@@ -73,6 +73,8 @@ public partial class PageBedrockLeft
     private void BtnSwitchLunar_Click(object sender, MouseButtonEventArgs e) =>
         ModExtensions.SwitchTo(FormMain.PageType.Lunar);
 
+    private void ItemAllExtensions_Click(object sender, MouseButtonEventArgs e) => ModExtensions.OpenHub();
+
     #region 页面切换
 
     /// <summary>

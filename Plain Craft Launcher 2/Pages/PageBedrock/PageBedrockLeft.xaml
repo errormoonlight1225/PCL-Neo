@@ -29,6 +29,11 @@
                 <TextBlock Text="{DynamicResource Extensions.Left.Category}"
                            Margin="13,5,5,3"
                            Opacity="0.6" FontSize="12" />
+                <local:MyListItem IsScaleAnimationEnabled="False" Type="Clickable"
+                                  MinPaddingRight="35" Height="36" VerticalAlignment="Top"
+                                  Title="{DynamicResource Extensions.Left.AllExtensions}"
+                                  LogoScale="0.85" SvgIcon="lucide/package-plus"
+                                  Click="ItemAllExtensions_Click" />
                 <Grid Margin="13,2,13,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />

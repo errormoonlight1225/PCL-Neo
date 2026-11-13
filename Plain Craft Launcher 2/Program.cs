@@ -8,7 +8,10 @@ using PCL.Core.App.IoC;
 using PCL.Core.App.Localization;
 using PCL.Core.Logging;
 using PCL.Core.Minecraft.Worlds;
+using PCL.Core.Extensions;
 using PCL.Core.Plugins;
+using PCL.Extension.SDK;
+using PCL.Extension.SDK.Controls;
 using PCL.Plugin.SDK;
 using PCL.Core.Utils.OS;
 using PCL.Network;
@@ -36,6 +39,7 @@ internal static class Program
 #endif
         Console.WriteLine("Welcome to PCL Lite!");
         _ConfigurePluginBridge();
+        _ConfigureExtensionBridge();
         // 网络授权弹窗：必须早于任何联网操作注册
         PCL.Network.NetworkConsentDialog.Register();
         // 更新反代的域名清单由 UpdatesGitHubModel 持有，这里派生给授权白名单，
@@ -76,6 +80,27 @@ internal static class Program
         _ = Tablet.TabletDevices;
         // Start lifecycle
         Lifecycle.OnInitialize();
+    }
+
+    private static void _ConfigureExtensionBridge()
+    {
+        PclControlHost.SetFactory(new PclControlFactory());
+        ExtensionHostBridge.IsElevated = () => ModExtensions.IsElevated;
+        ExtensionHostBridge.NavigateTo = ModExtensions.NavigateToSection;
+        ExtensionHostBridge.ShowMessageAsync = (message, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var buttons = message.Buttons;
+            return Application.Current.Dispatcher.InvokeAsync(() => ModMain.MyMsgBox(message.Text, message.Title,
+                buttons[0], buttons.Count > 1 ? buttons[1] : "", buttons.Count > 2 ? buttons[2] : "",
+                isWarn: message.IsWarning)).Task;
+        };
+        ExtensionHostBridge.InputAsync = (input, cancellationToken) =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Application.Current.Dispatcher.InvokeAsync(() => (string?)ModMain.MyMsgBoxInput(input.Title, input.Text,
+                input.DefaultValue, hintText: input.HintText, button1: input.ConfirmText, button2: input.CancelText)).Task;
+        };
     }
 
     private static void _ConfigurePluginBridge()

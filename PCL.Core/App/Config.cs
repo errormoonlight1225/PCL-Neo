@@ -257,8 +257,8 @@ public static partial class Config
         /// <summary>用户已确认「扩展」（基岩版 + Lunar Client）的高权限提示。</summary>
         [ConfigItem<bool>("UiExtensionsPrivilegeAccepted", false, ConfigSource.Local)] public partial bool ExtensionsPrivilegeAccepted { get; set; }
 
-        /// <summary>「扩展」按钮上次打开的页面（PageType 值：2 基岩版，13 Lunar）。</summary>
-        [ConfigItem<int>("UiExtensionsLastPage", 2, ConfigSource.Local)] public partial int ExtensionsLastPage { get; set; }
+        /// <summary>「扩展」按钮上次打开的页面（PageType 值：15 扩展商店，2 基岩版，13 Lunar）。</summary>
+        [ConfigItem<int>("UiExtensionsLastPage", 15, ConfigSource.Local)] public partial int ExtensionsLastPage { get; set; }
 
         /// <summary>
         /// 全局字体。

@@ -91,6 +91,7 @@
     <ItemGroup>
         <ProjectReference Include="..\PCL.Core\PCL.Core.csproj" />
         <ProjectReference Include="..\PCL.Plugin.SDK\PCL.Plugin.SDK.csproj" />
+        <ProjectReference Include="..\PCL.Extension.SDK\PCL.Extension.SDK.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Using Include="System.Text.Json" />

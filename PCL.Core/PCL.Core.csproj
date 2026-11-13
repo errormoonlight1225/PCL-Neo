@@ -111,5 +111,6 @@
         <AdditionalFiles Include="App\IoC\LifecycleState.cs" />
         <ProjectReference Include="..\PCL.Core.SourceGenerators\PCL.Core.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\PCL.Plugin.SDK\PCL.Plugin.SDK.csproj" />
+        <ProjectReference Include="..\PCL.Extension.SDK\PCL.Extension.SDK.csproj" />
     </ItemGroup>
 </Project>

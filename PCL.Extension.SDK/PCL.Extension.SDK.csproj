@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>14.0</LangVersion>
+    <AssemblyName>PCL.Extension.SDK</AssemblyName>
+    <RootNamespace>PCL.Extension.SDK</RootNamespace>
+    <Configurations>Debug;CI;Release;Beta</Configurations>
+    <Platforms>AnyCPU;x64;ARM64</Platforms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- 稳定的扩展 API：1.x 只做增量添加。改动公开接口前先读 docs/EXTENSIONS.md 的兼容性约定。 -->
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PCL.Plugin.SDK\PCL.Plugin.SDK.csproj" />
+  </ItemGroup>
+</Project>

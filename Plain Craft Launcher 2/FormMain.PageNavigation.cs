@@ -479,6 +479,12 @@ public partial class FormMain
                             (FrameworkElement)ModMain.frmPluginsLeft.PageGet(subType));
                         break;
                     }
+                case PageType.Extensions: // 扩展：商店 + 已安装扩展的页面
+                    {
+                        ModMain.frmExtensionsLeft ??= new PageExtensionsLeft();
+                        PageChangeAnim(ModMain.frmExtensionsLeft, ModMain.frmExtensionsLeft.PageGet());
+                        break;
+                    }
                 case PageType.Lunar: // Lunar Client（实验特性）
                     {
                         ModMain.frmLunarLeft ??= new PageLunarLeft();

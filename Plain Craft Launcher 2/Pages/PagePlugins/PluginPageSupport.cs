@@ -153,10 +153,11 @@ internal static class PluginPageSupport
         return button;
     }
 
-    public static Task<bool> ConfirmInstallationAsync(PluginPackageCheck check, CancellationToken cancellationToken)
+    /// <summary>Text and styling of the install confirmation, shared by plugins and extensions.</summary>
+    public sealed record InstallationDescription(string Title, string Message, string ConfirmText, bool IsWarning);
+
+    public static InstallationDescription DescribeInstallation(PluginPackageCheck check)
     {
-        var dispatcher = Application.Current?.Dispatcher;
-        if (dispatcher is null) return Task.FromResult(false);
         var githubDetails = check.GitHubProvenance is { } provenance
             ? Lang.Text("Plugin.Install.GitHubVerified", provenance.Repository, provenance.Tag,
                 provenance.PublishedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss zzz"), provenance.Sha256,
@@ -193,20 +194,39 @@ internal static class PluginPageSupport
             : string.Empty;
         var updateWarning = sourceWarning + downgradeWarning + packageChangedWarning;
         if (!check.IsSigned)
-            return dispatcher.InvokeAsync(() => ModMain.MyMsgBox(Lang.Text("Plugin.Install.UnsignedMessage", pluginInfo, githubDetails + mixinWarning + signerChangeWarning + compatibilityWarning + updateWarning),
+            return new InstallationDescription(
                 check.SignerChanged ? Lang.Text("Plugin.Install.SignerChangedTitle") : Lang.Text("Plugin.Install.UnsignedTitle"),
+                Lang.Text("Plugin.Install.UnsignedMessage", pluginInfo,
+                    githubDetails + mixinWarning + signerChangeWarning + compatibilityWarning + updateWarning),
                 check.SignerChanged ? Lang.Text("Plugin.Install.SignerChangedConfirm") : Lang.Text("Plugin.Install.UnsignedConfirm"),
-                Lang.Text("Plugin.Install.Cancel"), isWarn: true) == 1).Task;
+                true);
 
         var signedAt = check.SignedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss zzz") ?? Lang.Text("Plugin.Install.UnknownTime");
         var info = Lang.Text("Plugin.Install.SignerInfo", check.Signer ?? Lang.Text("Plugin.Install.UnknownSigner"),
             check.SignerThumbprint ?? Lang.Text("Plugin.Install.UnknownSigner"), signedAt, pluginInfo,
             githubDetails + mixinWarning + signerChangeWarning + compatibilityWarning + updateWarning);
-        return dispatcher.InvokeAsync(() => ModMain.MyMsgBox(info,
+        return new InstallationDescription(
             check.SignerChanged ? Lang.Text("Plugin.Install.SignerChangedTitle") : Lang.Text("Plugin.Install.SignedTitle"),
+            info,
             check.SignerChanged ? Lang.Text("Plugin.Install.SignerChangedConfirm") : Lang.Text("Plugin.Install.Confirm"),
-            Lang.Text("Plugin.Install.Cancel"), isWarn: check.SignerChanged || check.CompatibilityWarning is not null ||
-                check.SourceChanged || check.IsDowngrade || check.PackageChanged) == 1).Task;
+            check.SignerChanged || check.CompatibilityWarning is not null ||
+            check.SourceChanged || check.IsDowngrade || check.PackageChanged);
+    }
+
+    public static Task<bool> ConfirmInstallationAsync(PluginPackageCheck check, CancellationToken cancellationToken) =>
+        ConfirmAsync(DescribeInstallation(check), null, false);
+
+    /// <summary>
+    ///     Shows an install confirmation. <paramref name="preface" /> is placed above the standard
+    ///     details; <paramref name="forceWarning" /> turns the dialog red.
+    /// </summary>
+    public static Task<bool> ConfirmAsync(InstallationDescription description, string? preface, bool forceWarning)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null) return Task.FromResult(false);
+        var message = string.IsNullOrWhiteSpace(preface) ? description.Message : preface + "\n\n" + description.Message;
+        return dispatcher.InvokeAsync(() => ModMain.MyMsgBox(message, description.Title, description.ConfirmText,
+            Lang.Text("Plugin.Install.Cancel"), isWarn: forceWarning || description.IsWarning) == 1).Task;
     }
 
     public static void ShowPluginNotice(string message, PluginNotificationKind kind = PluginNotificationKind.Info,
@@ -312,6 +332,7 @@ internal static class PluginPageSupport
     private static string GetSourceName(string? sourceType) => sourceType switch
     {
         "market" => Lang.Text("Plugin.Installed.Source.Market"),
+        "source" => Lang.Text("Extensions.Store.Source.Repository"),
         "local" => Lang.Text("Plugin.Installed.Source.Local"),
         _ => Lang.Text("Plugin.Installed.Source.Unknown")
     };

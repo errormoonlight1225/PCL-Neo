@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    示例扩展：覆盖全部控件代理、启动卡片、多语言和多子页面，用来验证扩展 SDK。不发布到任何软件源。
+    打包：dotnet build -c Release 后，对 bin/Release/net10.0-windows 运行
+      PCL.Plugin.Tools pack <输出目录> <证书.pfx> PCL.Extension.Sample.pclext
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>14.0</LangVersion>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- 扩展包只需要扩展自己的程序集：不生成 deps.json 以外的多余文件，也不带 PDB -->
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- SDK 程序集由启动器提供，运行时总是绑定到启动器自己的那份，所以不复制进输出目录和扩展包 -->
+    <ProjectReference Include="..\PCL.Plugin.SDK\PCL.Plugin.SDK.csproj" Private="false" />
+    <ProjectReference Include="..\PCL.Extension.SDK\PCL.Extension.SDK.csproj" Private="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="lang\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

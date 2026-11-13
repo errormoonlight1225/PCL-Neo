@@ -25,16 +25,19 @@ public sealed partial class PluginRuntimeManager
     private async Task<PluginState> _PreparePluginAsync(string directory, PluginManifest manifest, PluginState state,
         CancellationToken cancellationToken)
     {
+        if (_profile.Validate(manifest) is { } profileError) throw new InvalidDataException(profileError);
         var assemblyPath = Path.Combine(directory, manifest.EntryAssembly.Replace('/', Path.DirectorySeparatorChar));
         var sharedAssemblies = _ResolveDependencyAssemblies(manifest);
-        var loadContext = new PluginAssemblyLoadContext(directory, assemblyPath, sharedAssemblies);
+        var loadContext = new PluginAssemblyLoadContext(directory, assemblyPath, sharedAssemblies, _profile.SharedAssemblies);
         var assembly = loadContext.LoadFromAssemblyPath(Path.GetFullPath(assemblyPath));
         try
         {
-            state = await _ApplyPluginMixinsAsync(assembly, manifest, state, cancellationToken).ConfigureAwait(false);
+            if (_profile.AllowMixins)
+                state = await _ApplyPluginMixinsAsync(assembly, manifest, state, cancellationToken).ConfigureAwait(false);
             var type = assembly.GetType(manifest.EntryType, throwOnError: true, ignoreCase: false)!;
-            if (!typeof(IPclPlugin).IsAssignableFrom(type)) throw new InvalidDataException("Plugin entry type must implement IPclPlugin.");
-            lock (_sync) _prepared.Add(manifest.Id, new(manifest, loadContext, assembly, type));
+            if (!_profile.EntryInterface.IsAssignableFrom(type))
+                throw new InvalidDataException($"{_profile.Name} entry type must implement {_profile.EntryInterface.Name}.");
+            lock (_sync) _prepared.Add(manifest.Id, new(manifest, loadContext, assembly, type, directory));
             return state;
         }
         catch
@@ -78,15 +81,16 @@ public sealed partial class PluginRuntimeManager
 
     private async Task _StartPluginAsync(PreparedPlugin prepared, CancellationToken cancellationToken)
     {
-        if (Activator.CreateInstance(prepared.EntryType) is not IPclPlugin plugin)
-            throw new InvalidDataException("Plugin entry type must have a public parameterless constructor.");
+        var entry = Activator.CreateInstance(prepared.EntryType)
+            ?? throw new InvalidDataException($"{_profile.Name} entry type must have a public parameterless constructor.");
+        var plugin = _profile.CreatePlugin(entry, prepared.Manifest, prepared.Directory);
         Directory.CreateDirectory(Path.Combine(_pluginsDirectory, ".plugin-data", prepared.Manifest.Id));
         var context = new PluginContext(this, prepared.Manifest);
         try
         {
             await plugin.StartAsync(context, cancellationToken).ConfigureAwait(false);
             lock (_sync) _running.Add(new(plugin, context, prepared.LoadContext, prepared.Manifest, prepared.Assembly));
-            _current = this;
+            _Activate(this);
         }
         catch
         {
@@ -212,7 +216,7 @@ public sealed partial class PluginRuntimeManager
         foreach (var prepared in _prepared.Values.ToArray()) _RollbackPrepared(prepared);
         _prepared.Clear();
         _running.Clear();
-        if (ReferenceEquals(_current, this)) _current = null;
+        _Deactivate(this);
         _mixinRuntime?.Dispose();
         _mixinRuntime = null;
         if (_ownsHttpClient) _httpClient.Dispose();
@@ -427,7 +431,8 @@ public sealed partial class PluginRuntimeManager
             repository is "." or ".." ||
             string.IsNullOrWhiteSpace(tag) || tag.Contains('\\') || tag.Contains('\0') ||
             string.IsNullOrWhiteSpace(assetName) || assetName.Contains('/') || assetName.Contains('\\') ||
-            !assetName.EndsWith(PluginPackage.Extension, StringComparison.OrdinalIgnoreCase)) return false;
+            !(assetName.EndsWith(PluginPackage.Extension, StringComparison.OrdinalIgnoreCase) ||
+              assetName.EndsWith(PluginPackage.ExtensionPackageExtension, StringComparison.OrdinalIgnoreCase))) return false;
         asset = new(owner, repository, tag, assetName);
         return true;
     }
@@ -682,17 +687,20 @@ public sealed partial class PluginRuntimeManager
         PluginManifest Manifest, Assembly Assembly);
 
     private sealed record PreparedPlugin(PluginManifest Manifest, PluginAssemblyLoadContext LoadContext,
-        Assembly Assembly, Type EntryType);
+        Assembly Assembly, Type EntryType, string Directory);
 
 
     private sealed class PluginAssemblyLoadContext(string pluginDirectory, string entryAssemblyPath,
-        IReadOnlyDictionary<string, Assembly> sharedDependencies) : AssemblyLoadContext(isCollectible: true)
+        IReadOnlyDictionary<string, Assembly> sharedDependencies, IReadOnlyList<Assembly> hostAssemblies)
+        : AssemblyLoadContext(isCollectible: true)
     {
         private readonly AssemblyDependencyResolver _resolver = new(Path.GetFullPath(entryAssemblyPath));
         public IReadOnlyDictionary<string, Assembly> SharedDependencies { get; } = sharedDependencies;
         protected override Assembly? Load(AssemblyName assemblyName)
         {
-            if (assemblyName.Name == typeof(IPclPlugin).Assembly.GetName().Name) return typeof(IPclPlugin).Assembly;
+            // SDK assemblies always bind to the host's copy so contract types are identical.
+            foreach (var hostAssembly in hostAssemblies)
+                if (assemblyName.Name == hostAssembly.GetName().Name) return hostAssembly;
             if (assemblyName.Name is not null && SharedDependencies.TryGetValue(assemblyName.Name, out var sharedAssembly))
             {
                 if (!AssemblyName.ReferenceMatchesDefinition(assemblyName, sharedAssembly.GetName()))

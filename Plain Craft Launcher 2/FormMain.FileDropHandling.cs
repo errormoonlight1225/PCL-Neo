@@ -602,6 +602,12 @@ public partial class FormMain
         ///         </para>
         /// </summary>
         Lunar = 13,
+
+        /// <summary>
+        ///     扩展：商店、软件源，以及已安装扩展注册的页面。顶栏「扩展」按钮默认进入这里。
+        ///     基岩版（2）与 Lunar（13）在拆成扩展之前仍是独立页面，也归在同一个按钮下。
+        /// </summary>
+        Extensions = 15,
     }
 
 

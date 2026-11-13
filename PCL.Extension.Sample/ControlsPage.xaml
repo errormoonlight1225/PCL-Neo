@@ -1,0 +1,43 @@
+<UserControl x:Class="PCL.Extension.Sample.ControlsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:pcl="urn:pcl-lite:extension-sdk">
+    <!--  每种控件代理都用一次。文案用 DynamicResource，切换语言时自动更新  -->
+    <StackPanel>
+        <pcl:Hint Theme="Blue" Text="{DynamicResource Sample.Hint}" Margin="0,0,0,15" />
+
+        <pcl:Card Title="{DynamicResource Sample.Card.Controls}" Margin="0,0,0,15">
+            <StackPanel>
+                <WrapPanel Margin="0,0,0,10">
+                    <pcl:Button x:Name="BtnNormal" Text="{DynamicResource Sample.Button}" Height="35" MinWidth="120"
+                                Margin="0,0,10,0" Click="BtnNormal_Click" />
+                    <pcl:Button Text="{DynamicResource Sample.Button.Highlight}" ColorType="Highlight" Height="35"
+                                MinWidth="120" Margin="0,0,10,0" Click="BtnNormal_Click" />
+                    <pcl:IconButton SvgIcon="lucide/refresh-cw" LogoScale="0.9" Width="30" Height="30"
+                                    VerticalAlignment="Center" Click="BtnNormal_Click" />
+                </WrapPanel>
+                <TextBlock x:Name="LabClicks" Margin="0,0,0,10" />
+                <pcl:ListItem Title="{DynamicResource Sample.ListItem}" Info="{DynamicResource Sample.ListItem.Info}"
+                              SvgIcon="lucide/puzzle" Height="42" Click="BtnNormal_Click" />
+                <WrapPanel Margin="0,10,0,0">
+                    <pcl:TextButton Text="{DynamicResource Sample.TextButton}" Margin="0,0,15,0" Click="BtnNormal_Click" />
+                    <pcl:IconTextButton Text="{DynamicResource Sample.IconTextButton}" SvgIcon="lucide/sparkles"
+                                        LogoScale="0.9" Click="BtnNormal_Click" />
+                </WrapPanel>
+            </StackPanel>
+        </pcl:Card>
+
+        <pcl:Card Title="{DynamicResource Sample.Card.Inputs}">
+            <StackPanel>
+                <pcl:TextBox x:Name="TextSample" HintText="{DynamicResource Sample.TextBox.Hint}" Height="30"
+                             Margin="0,0,0,10" TextChanged="TextSample_TextChanged" />
+                <pcl:ComboBox x:Name="ComboChoice" Height="30" Margin="0,0,0,10" SelectionChanged="ComboChoice_SelectionChanged">
+                    <pcl:ComboBoxItem Content="{DynamicResource Sample.Combo.First}" Tag="first" IsSelected="True" />
+                    <pcl:ComboBoxItem Content="{DynamicResource Sample.Combo.Second}" Tag="second" />
+                </pcl:ComboBox>
+                <pcl:CheckBox x:Name="CheckOption" Text="{DynamicResource Sample.CheckBox}" Change="CheckOption_Change" />
+                <TextBlock x:Name="LabInputs" Margin="0,10,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+        </pcl:Card>
+    </StackPanel>
+</UserControl>

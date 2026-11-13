@@ -145,6 +145,8 @@ public partial class PageLunarLeft
     private void BtnSwitchBedrock_Click(object sender, MouseButtonEventArgs e) =>
         ModExtensions.SwitchTo(FormMain.PageType.Bedrock);
 
+    private void ItemAllExtensions_Click(object sender, MouseButtonEventArgs e) => ModExtensions.OpenHub();
+
     #region 页面切换
 
     public FormMain.PageSubType pageID = FormMain.PageSubType.LunarLaunch;

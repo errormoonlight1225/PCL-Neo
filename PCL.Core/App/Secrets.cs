@@ -32,6 +32,17 @@ public static class Secrets
     public const string LunarOAuthClientId = "4358653d-21f6-4697-96bb-7963ff974196";
 
     /// <summary>
+    ///     官方软件源的扩展签名证书指纹（SHA-1 或 SHA-256，逗号分隔）。
+    ///     <para>
+    ///         指纹本身不是机密，放在这里是为了让分叉项目在编译时换成自己的证书：
+    ///         设置 <c>PCL_WRITE_SECRET=1</c> 和 <c>PCL_EXTENSION_OFFICIAL_SIGNERS</c> 后编译。
+    ///         为空时官方源的扩展一律拒绝安装（第三方源和本地文件不受影响）。
+    ///     </para>
+    /// </summary>
+    public static string ExtensionOfficialSigners { get; } =
+        EnvironmentInterop.GetSecret("EXTENSION_OFFICIAL_SIGNERS", readEnvDebugOnly: true).ReplaceNullOrEmpty();
+
+    /// <summary>
     ///     In-Game Account Switcher（IAS）的 Azure 应用 client id。
     ///     <para>
     ///         同样是公共客户端、没有 secret，写在它自己的开源仓库里。

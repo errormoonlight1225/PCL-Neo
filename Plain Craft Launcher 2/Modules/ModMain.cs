@@ -43,6 +43,8 @@ public static partial class ModMain
     public static PagePluginsLeft? frmPluginsLeft;
     public static PagePluginsMarket? frmPluginsMarket;
     public static PagePluginsInstalled? frmPluginsInstalled;
+    internal static PageExtensionsLeft? frmExtensionsLeft;
+    internal static PageExtensionStore? frmExtensionStore;
     public static PageLunarLeft? frmLunarLeft;
     public static PageLunarLaunch? frmLunarLaunch;
     public static PageDownloadLeft? frmDownloadLeft;

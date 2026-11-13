@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Globalization;
 using PCL.Mixin;
 
@@ -39,6 +40,24 @@ public sealed record PluginManifest
     public Dictionary<string, string> LocalizedDescriptions { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     /// <summary>Optional direct GitHub release asset URL used to corroborate package hash and publish time.</summary>
     public string? ReleaseAssetUrl { get; init; }
+
+    // The two members below are omitted from the canonical manifest when null, so manifests written
+    // before they existed keep hashing (and verifying their signatures) exactly as before.
+
+    /// <summary>Package kind: <c>plugin</c> (default when absent) or <c>extension</c>.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Kind { get; init; }
+
+    /// <summary>Minimum extension API version (<c>major.minor</c>). Required for extensions.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ExtensionApi { get; init; }
+}
+
+/// <summary>Values of <see cref="PluginManifest.Kind" />.</summary>
+public static class PluginManifestKind
+{
+    public const string Plugin = "plugin";
+    public const string Extension = "extension";
 }
 
 /// <summary>A named, independently selectable group of experimental Mixin configuration files.</summary>
@@ -91,6 +110,8 @@ public static class PluginPackage
     public const string ManifestFileName = "plugin.json";
     public const string SignatureFileName = "signature.json";
     public const string Extension = ".pclplugin";
+    /// <summary>File extension of extension packages (same format, manifest <c>kind: "extension"</c>).</summary>
+    public const string ExtensionPackageExtension = ".pclext";
     public const int MaximumPackageEntries = 10_000;
     public const long MaximumPackageBytes = 100L * 1024 * 1024;
     public const long MaximumExpandedBytes = 500L * 1024 * 1024;
@@ -697,6 +718,11 @@ public static class PluginPackage
         if (string.IsNullOrWhiteSpace(manifest.Author) || manifest.Author.Length > 128) return "Plugin author is missing or too long.";
         if (manifest.Description is null || manifest.Description.Length > 4096) return "Plugin description is missing or too long.";
         if (manifest.ApiVersion != PluginApiVersion.Current) return $"Plugin API version {manifest.ApiVersion} is not supported.";
+        if (manifest.Kind is not (null or PluginManifestKind.Plugin or PluginManifestKind.Extension))
+            return "Package kind must be 'plugin' or 'extension'.";
+        if (manifest.Kind == PluginManifestKind.Extension && string.IsNullOrWhiteSpace(manifest.ExtensionApi))
+            return "Extension packages must declare extensionApi.";
+        if (manifest.ExtensionApi is { Length: > 16 }) return "Extension API version is too long.";
         if (manifest.PclCoreVersion is { } coreVersionRange &&
             (coreVersionRange.Length > 256 || !PluginVersionRange.IsValid(coreVersionRange)))
             return "Plugin PCL Core version range is invalid.";

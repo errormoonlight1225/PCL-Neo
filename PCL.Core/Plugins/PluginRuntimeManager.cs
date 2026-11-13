@@ -156,6 +156,7 @@ public sealed partial class PluginRuntimeManager : IAsyncDisposable
     private MixinRuntime? _mixinRuntime;
     private readonly Dictionary<string, PreparedPlugin> _prepared = new(StringComparer.Ordinal);
     private readonly object _sync = new();
+    private readonly PluginRuntimeProfile _profile;
     private bool _disposed;
     private static readonly JsonSerializerOptions GitHubJsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -163,8 +164,10 @@ public sealed partial class PluginRuntimeManager : IAsyncDisposable
         PropertyNameCaseInsensitive = true
     };
 
-    public PluginRuntimeManager(string? pluginsDirectory = null, HttpClient? httpClient = null)
+    public PluginRuntimeManager(string? pluginsDirectory = null, HttpClient? httpClient = null,
+        PluginRuntimeProfile? profile = null)
     {
+        _profile = profile ?? PluginRuntimeProfile.Plugins;
         _pluginsDirectory = Path.GetFullPath(pluginsDirectory ?? Path.Combine(Paths.Data, "Plugins"));
         _stateDirectory = Path.Combine(_pluginsDirectory, ".plugin-state");
         _ownsHttpClient = httpClient is null;
@@ -175,5 +178,29 @@ public sealed partial class PluginRuntimeManager : IAsyncDisposable
         _CleanupPendingDeletes();
     }
 
-    private static PluginRuntimeManager? _current;
+    /// <summary>What this instance manages (plugins or extensions).</summary>
+    public PluginRuntimeProfile Profile => _profile;
+
+    /// <summary>Whether <paramref name="url" /> is a direct GitHub release asset of a plugin or extension package.</summary>
+    public static bool IsGitHubReleaseAsset(string? url) => _TryParseGitHubReleaseAsset(url, out _);
+
+    // Host events (navigation, game launch, theme...) go to every live runtime: the plugin runtime and
+    // the extension runtime each hold their own subscribers.
+    private static readonly List<PluginRuntimeManager> _activeManagers = [];
+
+    private static void _Activate(PluginRuntimeManager manager)
+    {
+        lock (_activeManagers)
+            if (!_activeManagers.Contains(manager)) _activeManagers.Add(manager);
+    }
+
+    private static void _Deactivate(PluginRuntimeManager manager)
+    {
+        lock (_activeManagers) _activeManagers.Remove(manager);
+    }
+
+    private static PluginRuntimeManager[] _GetActiveManagers()
+    {
+        lock (_activeManagers) return _activeManagers.ToArray();
+    }
 }

@@ -80,6 +80,17 @@ $env:PCL_BEDROCK_PREVIEW_CIK = "<预览版 CIK 的十六进制串>"
 才会明确提示「当前构建未包含基岩版 GDK 内容密钥（CIK），无法解包这个安装包」。
 UWP（商店包）的下载与安装不需要 CIK。
 
+### 官方扩展签名人
+
+官方软件源只接受由官方证书签名的扩展包。证书指纹在编译时注入（多个用逗号分隔）：
+
+```powershell
+$env:PCL_WRITE_SECRET = "1"
+$env:PCL_EXTENSION_OFFICIAL_SIGNERS = "<证书 SHA-1 或 SHA-256 指纹>"
+```
+
+没注入时启动器照常工作，只是官方源里的扩展会被拒绝安装；第三方软件源和本地文件不受影响。详见 [EXTENSIONS.md](EXTENSIONS.md)。
+
 ### ⚠️ 改密钥后必须重启编译服务器
 
 **这是最容易白干半小时的坑。**

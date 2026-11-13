@@ -116,7 +116,16 @@ public sealed partial class PluginRuntimeManager
     }
 
 
-    public async Task<PluginPackageCheck> InstallFromMarketAsync(PluginMarketEntry entry,
+    public Task<PluginPackageCheck> InstallFromMarketAsync(PluginMarketEntry entry,
+        Func<PluginPackageCheck, CancellationToken, Task<bool>> confirmInstallation,
+        CancellationToken cancellationToken = default) =>
+        InstallFromCatalogAsync(entry, "market", confirmInstallation, cancellationToken);
+
+    /// <summary>
+    ///     Downloads a catalog entry (plugin market or extension source), checks its SHA-256 against
+    ///     the index, then installs it. <paramref name="sourceType" /> is recorded in the install state.
+    /// </summary>
+    public async Task<PluginPackageCheck> InstallFromCatalogAsync(PluginMarketEntry entry, string sourceType,
         Func<PluginPackageCheck, CancellationToken, Task<bool>> confirmInstallation,
         CancellationToken cancellationToken = default)
     {
@@ -174,7 +183,7 @@ public sealed partial class PluginRuntimeManager
             var installedCheck = await _InstallAsync(path, (current, token) => confirmInstallation(current with
             {
                 GitHubProvenance = check.GitHubProvenance
-            }, token), "market", entry.SourceUrl, entry.PackageUrl, entry.Sha256, cancellationToken)
+            }, token), sourceType, entry.SourceUrl, entry.PackageUrl, entry.Sha256, cancellationToken)
                 .ConfigureAwait(false);
             return installedCheck with { GitHubProvenance = check.GitHubProvenance };
         }
@@ -242,6 +251,7 @@ public sealed partial class PluginRuntimeManager
     {
         var check = await PluginPackage.InspectAsync(packagePath, cancellationToken).ConfigureAwait(false);
         if (check.Error is not null || !check.IsValid) throw new InvalidDataException(check.Error ?? "Plugin package is invalid.");
+        if (_profile.Validate(check.Manifest) is { } profileError) throw new InvalidDataException(profileError);
         var provenanceUrl = packageUrl ?? check.Manifest.ReleaseAssetUrl;
         if (!string.IsNullOrWhiteSpace(provenanceUrl))
         {
@@ -397,7 +407,7 @@ public sealed partial class PluginRuntimeManager
     /// <summary>Verifies enabled packages and applies their compiled patches before the main window is created.</summary>
     public async Task PrepareEnabledAsync(CancellationToken cancellationToken = default)
     {
-        _current = this;
+        _Activate(this);
         Directory.CreateDirectory(_pluginsDirectory);
         lock (_sync) _installed.Clear();
         var candidates = new List<PluginDependencyCandidate>();
@@ -714,7 +724,7 @@ public sealed partial class PluginRuntimeManager
 
     public static void Notify<TEvent>(TEvent eventData)
     {
-        if (_current is { } manager) _ = manager.PublishAsync(eventData);
+        foreach (var manager in _GetActiveManagers()) _ = manager.PublishAsync(eventData);
     }
 
 }

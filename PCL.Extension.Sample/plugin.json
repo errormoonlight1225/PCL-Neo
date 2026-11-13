@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "kind": "extension",
+  "extensionApi": "1.0",
+  "id": "pcl.extension.sample",
+  "name": "PCL Extension Sample",
+  "version": "1.0.0",
+  "author": "PCL Lite SDK",
+  "description": "Demonstrates the PCL Lite extension SDK: control proxies, launcher card, pages and localization.",
+  "apiVersion": 1,
+  "entryAssembly": "PCL.Extension.Sample.dll",
+  "entryType": "PCL.Extension.Sample.SampleExtension"
+}
